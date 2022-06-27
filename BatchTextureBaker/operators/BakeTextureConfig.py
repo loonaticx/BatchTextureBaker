@@ -1,3 +1,13 @@
+"""
+BakeTextureConfig
+
+Configuration properties for setting input and output directories utilized by the script.
+
+Author: Loonatic
+Date: 6/26/2022
+
+"""
+
 # https://docs.blender.org/api/current/bpy.props.html#propertygroup-example
 
 import bpy

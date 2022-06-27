@@ -7,4 +7,3 @@ class optestOperator(bpy.types.Operator):
 
     def execute(self, context):
         return {'FINISHED'}
-

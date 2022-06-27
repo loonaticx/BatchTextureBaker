@@ -26,29 +26,7 @@ def registerPanel():
 def unregisterPanel():
     bpy.utils.unregister_class(TextureBakePanel)
 
-
-# def registerProperties():
-#     # access with
-#     # context.scene.texbake_inputdir
-#     bpy.types.Scene.texbake_inputdir = bpy.props.StringProperty(
-#         name = "Input Texture Directory",
-#         description = "My description",
-#         default = "test/dir/"
-#         # default = BakeTextureConfig.INPUT_TEXTURE_DIR
-#     )
-#     # print(bpy.types.Scene.texbake_inputdir)
-#
-#     bpy.types.Scene.texbake_outputdir = bpy.props.StringProperty(
-#         name = "Output Texture Directory",
-#         description = "My description",
-#         default = BakeTextureConfig.OUTPUT_TEXTURE_DIR
-#     )
-
 if __name__ == "__main__":
-    print("fhdsjkfhkjdskdfjdhsjkfhskdjf")
-    # register()
-    # unregisterPanel()
-    # registerProperties()
     BakeTextureConfig.register()
     registerOperator()
     registerPanel()
