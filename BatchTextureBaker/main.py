@@ -1,7 +1,7 @@
 import bpy
 from operators.BakeTextureOperator import BakeTextureOperator
 from operators import BakeTextureConfig
-from panels.panel_test import TextureBakePanel
+from panels.TextureBakePanel import TextureBakePanel
 
 
 def menu_func(self, context):

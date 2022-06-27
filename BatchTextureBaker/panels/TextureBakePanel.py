@@ -1,5 +1,15 @@
+"""
+TextureBakePanel
+
+GUI panel to configure baking config an d start the baking process.
+
+Author: Loonatic
+Date: 6/26/2022
+
+"""
+
 import bpy
-# from operators.bake_texture import BakeTextureConfig
+
 
 class TextureBakePanel(bpy.types.Panel):
     """Creates a Panel in the Object properties window"""
@@ -15,10 +25,10 @@ class TextureBakePanel(bpy.types.Panel):
         obj = context.object
 
         row = layout.row()
-        row.label(text="Hi!!!", icon='WORLD_DATA')
+        row.label(text = "Hi!!!", icon = 'WORLD_DATA')
 
         row = layout.row()
-        row.label(text="Active object is: " + obj.name)
+        row.label(text = "Active object is: " + obj.name)
         row = layout.row()
         row.prop(obj, "name")
 
@@ -32,8 +42,6 @@ class TextureBakePanel(bpy.types.Panel):
 
         row = layout.row()
         row.operator("object.texbake")
-
-
 
 
 def register():
