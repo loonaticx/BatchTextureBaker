@@ -1,0 +1,8 @@
+.idea
+venv
+*.png
+*.blend*
+__pycache__
+*.pyc
+output_test
+input_test
