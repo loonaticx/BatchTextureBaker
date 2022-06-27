@@ -39,7 +39,7 @@ class BakeTextureOperator(bpy.types.Operator):
             self.OUTPUT_TEXTURE_DIR += "\\"
 
         print(f"INPUT_TEXTURE_DIR = {self.INPUT_TEXTURE_DIR}")
-        print(f"OUTPUT_TEXTURE_DIR} = {self.OUTPUT_TEXTURE_DIR}")
+        print(f"OUTPUT_TEXTURE_DIR = {self.OUTPUT_TEXTURE_DIR}")
 
         # ensure input/output dirs are valid directories
         if not os.path.isdir(self.INPUT_TEXTURE_DIR):
