@@ -1,3 +1,11 @@
+"""
+BakeTextureOperator
+
+Author: Loonatic
+Date: 6/26/2022
+
+"""
+
 import bpy
 import os
 
@@ -86,7 +94,6 @@ class BakeTextureOperator(bpy.types.Operator):
         for object in bpy.context.selected_objects:
             print(object)
 
-        # this method might just become our bakeTextures call
         # should only iterate through this loop once
         for img in bpy.data.images:
             print("name=%s, filepath=%s" % (img.name, img.filepath))
@@ -97,12 +104,7 @@ class BakeTextureOperator(bpy.types.Operator):
 
             # we need to generate a new material/image for our new model which will ultimately be our baked output image
             imgNew_path = f"{self.OUTPUT_TEXTURE_DIR}/{img.name}_baked"
-            imgNew = bpy.data.images.new(name = imgNew_path, width=1024, height=1024)
-
-            # do i even need this???
-            # pixels = [1.0] * (4 * 1024 * 1024)
-            # pixels = [chan for px in pixels for chan in px]
-            # image.pixels = pixels
+            imgNew = bpy.data.images.new(name = imgNew_path, width = 1024, height = 1024)
 
             print("Configuring new model...")
             # imgNew = self.images.load(f"{self.OUTPUT_TEXTURE_DIR}/{img.name}")
@@ -155,7 +157,7 @@ class BakeTextureOperator(bpy.types.Operator):
         link = links.new(node_tex.outputs["Color"], node_principled.inputs["Base Color"])
         link = links.new(node_principled.outputs["BSDF"], node_output.inputs["Surface"])
 
-        print(f"mat = ")
+        print(f"mat = {mat}")
 
         # bpy.context.object.active_material.name = "test"
         # Add our (input) texture to the model
