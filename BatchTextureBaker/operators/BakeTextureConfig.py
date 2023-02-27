@@ -57,8 +57,3 @@ class BakeTextureConfig(bpy.types.PropertyGroup):
         description = "Determine whether or not to add _bake at the end of the save image.",
         default = WANT_BAKE_SUFFIX
     )
-
-
-def register():
-    bpy.utils.register_class(BakeTextureConfig)
-    bpy.types.Scene.texbake_config = bpy.props.PointerProperty(type = BakeTextureConfig)

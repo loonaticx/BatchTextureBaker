@@ -8,6 +8,11 @@ Date: 6/26/2022
 
 """
 
+"""
+Todo: Add button to *set* source and destination model/UV.
+
+"""
+
 import bpy
 
 
@@ -51,15 +56,3 @@ class TextureBakePanel(bpy.types.Panel):
         # row.prop(context.scene.texbake_config, "want_bake_suffix")
         # row = box.row()
         # row.prop(context.scene.texbake_config, "margin_type")
-
-
-def register():
-    bpy.utils.register_class(TextureBakePanel)
-
-
-def unregister():
-    bpy.utils.unregister_class(TextureBakePanel)
-
-
-if __name__ == "__main__":
-    register()
