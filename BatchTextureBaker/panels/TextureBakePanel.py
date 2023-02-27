@@ -1,7 +1,7 @@
 """
 TextureBakePanel
 
-GUI panel to configure baking config an d start the baking process.
+GUI panel to configure baking config and start the baking process.
 
 Author: Loonatic
 Date: 6/26/2022
@@ -44,15 +44,13 @@ class TextureBakePanel(bpy.types.Panel):
         row.operator("object.texbake")
 
         box = layout.box()
-        box.label(text="Margin Config")
+        box.label(text = "Margin Config")
         row = box.row()
         row.prop(context.scene.texbake_config, "margin_px")
         # row = box.row()
         # row.prop(context.scene.texbake_config, "want_bake_suffix")
         # row = box.row()
         # row.prop(context.scene.texbake_config, "margin_type")
-
-
 
 
 def register():

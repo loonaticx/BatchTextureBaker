@@ -61,6 +61,4 @@ class BakeTextureConfig(bpy.types.PropertyGroup):
 
 def register():
     bpy.utils.register_class(BakeTextureConfig)
-    # context.scene.texbake_config
-    # context.scene.texbake_config.input_dir
     bpy.types.Scene.texbake_config = bpy.props.PointerProperty(type = BakeTextureConfig)
