@@ -15,6 +15,10 @@ TARGET_TEXTURE_DIR
     - will be iterated through and baked, same file name but located in OUTPUT_TEXTURE_DIR
 OUTPUT_TEXTURE_DIR
 
+Notes
+- Currently the output texture copies the same dimensions as the input texture, however, this may
+cause some ugly quality loss compared to baking a 1024x1024 render and *then* exporting the image.
+
 
 """
 
@@ -39,6 +43,9 @@ class BakeTextureOperator(bpy.types.Operator):
         self.images = bpy.data.images
         self.INPUT_TEXTURE_DIR = context.scene.texbake_config.input_dir
         self.OUTPUT_TEXTURE_DIR = context.scene.texbake_config.output_dir
+        self.MARGIN_PX = context.scene.texbake_config.margin_px
+        # self.MARGIN_TYPE = context.scene.texbake_config.margin_type
+        self.OUTPUT_SUFFIX = "_bake" if context.scene.texbake_config.want_bake_suffix else "_bake"
 
         # append two backslashes if those arent on end of the input
         if self.INPUT_TEXTURE_DIR[-1] != "\\":
@@ -63,20 +70,25 @@ class BakeTextureOperator(bpy.types.Operator):
         self.newModel = bpy.context.selected_objects[1]  # type: active_object
 
         # Configure our bake properties #
+        # https://docs.blender.org/api/current/bpy.types.RenderSettings.html
+
         # First, let's ensure we're already in the Cycles engine
         if context.scene.render.engine != 'CYCLES':
             context.scene.render.engine = 'CYCLES'
 
         # We only want the color; don't consider any light sources.
+        # https://docs.blender.org/api/current/bpy.types.BakeSettings.html
+
         bpy.context.scene.render.bake.use_pass_direct = False
         bpy.context.scene.render.bake.use_pass_indirect = False
         bpy.context.scene.render.bake.use_pass_color = True
+        bpy.context.scene.render.bake.margin = self.MARGIN_PX
+        # bpy.context.scene.render.bake.margin_type = self.MARGIN_TYPE
 
         # bpy.context.scene.render.bake.use_selected_to_active = True
 
         # test
         bpy.context.scene.render.bake.use_split_materials = True
-
 
         # Register all our input textures
         self.registerInputTextures()
@@ -96,7 +108,6 @@ class BakeTextureOperator(bpy.types.Operator):
             # bpy.data.materials.new(name = str(filename))  # Make a new material (returns material obj)
             # bpy.ops.material.new(name = str(filename))
 
-
     def bakeTextures(self):
         for object in bpy.context.selected_objects:
             print(object)
@@ -111,8 +122,9 @@ class BakeTextureOperator(bpy.types.Operator):
             # continue
 
             # we need to generate a new material/image for our new model which will ultimately be our baked output image
-            imgNew_path = f"{self.OUTPUT_TEXTURE_DIR}\\{img.name}_baked.png"
-            imgNew = bpy.data.images.new(name = f"{img.name}_baked.png", width = 1024, height = 1024)
+            imgNew_path = f"{self.OUTPUT_TEXTURE_DIR}\\{img.name}{self.OUTPUT_SUFFIX}"
+            imgNew = bpy.data.images.new(name = f"{img.name}{self.OUTPUT_SUFFIX}", width = img.size[0],
+                                         height = img.size[1])
 
             print("Configuring new model...")
             # imgNew = self.images.load(f"{self.OUTPUT_TEXTURE_DIR}/{img.name}")
@@ -133,8 +145,7 @@ class BakeTextureOperator(bpy.types.Operator):
             self.oldModel.active_material = old_model_material
             self.newModel.active_material = new_model_material
 
-            bpy.ops.object.bake(type = 'DIFFUSE', use_selected_to_active=True, use_clear=True)
-
+            bpy.ops.object.bake(type = 'DIFFUSE', use_selected_to_active = True, use_clear = True)
 
             # bpy.ops.object.bake(type = 'DIFFUSE',save_mode = 'EXTERNAL', use_selected_to_active=True, use_clear=True)
             # bpy.ops.object.bake(
@@ -145,7 +156,11 @@ class BakeTextureOperator(bpy.types.Operator):
             img.name = img.name.replace('.jpg', '.png')
             imgNew.name = imgNew.name.replace('.jpg', '.png')
             # lazy hack
-            imgNew.name = imgNew.name.replace('.png_baked', '_baked')
+            imgNew.name = imgNew.name.replace(f'.png{self.OUTPUT_SUFFIX}', f'{self.OUTPUT_SUFFIX}.png')
+            # if self.OUTPUT_SUFFIX:
+            #     imgNew.name = imgNew.name.replace(f'.png{self.OUTPUT_SUFFIX}', self.OUTPUT_SUFFIX)
+            # else:
+            #     imgNew.name = imgNew.name.replace(f'png.001', 'png')
 
             # todo: have it optional to re-export input files. if enabled, then add _baked underscore to differentiate.
             # img.save_render(filepath = f"{self.OUTPUT_TEXTURE_DIR}/{img.name}")
@@ -176,16 +191,15 @@ class BakeTextureOperator(bpy.types.Operator):
             # Remove old images since we dont need them anymore
             # warning: these cause pink images to export
             print(item for item in bpy.data.images)
-            # bpy.data.images.remove(img)
-            # bpy.data.images.remove(imgNew)
-            # # print(img)
-            # # print(imgNew)
-            # print("-----------------")
-            # self.removeMaterials(self.oldModel)
-            # print("-----------------")
-            # self.removeMaterials(self.newModel)
-            # print("-----------------")
-
+            bpy.data.images.remove(img)
+            bpy.data.images.remove(imgNew)
+            # print(img)
+            # print(imgNew)
+            print("-----------------")
+            self.removeMaterials(self.oldModel)
+            print("-----------------")
+            self.removeMaterials(self.newModel)
+            print("-----------------")
 
     def configureMaterial(self, img, model):
         # bpy.context.space_data.context = 'MATERIAL'
@@ -217,7 +231,7 @@ class BakeTextureOperator(bpy.types.Operator):
         node_principled.location = 0, 0
 
         # Assign image texture node (Our texture image)
-        node_tex = nodes.new(type='ShaderNodeTexImage')
+        node_tex = nodes.new(type = 'ShaderNodeTexImage')
         node_tex.name = 'Bake_node'
         # node_tex.image = img
         # node_tex.location = -400, 0
@@ -226,22 +240,19 @@ class BakeTextureOperator(bpy.types.Operator):
         node_tex.select = True
         nodes.active = node_tex
 
-
         # Add the Output node (required default)
         node_output = nodes.new(type = 'ShaderNodeOutputMaterial')
         node_output.name = 'node_output'
         # nodes['node_output'].location = 400, 0
-        #nodes['node_output'].select = True
+        # nodes['node_output'].select = True
 
         # Link all nodes
         links = mat.node_tree.links
         link = links.new(node_tex.outputs["Color"], node_principled.inputs["Base Color"])
         link = links.new(node_principled.outputs["BSDF"], node_output.inputs["Surface"])
 
-
         print(f"mat = {mat}")
         # print(mat.name)
-
 
         # Add our (input) texture to the material
         # tex = bpy.data.materials.new(img.name, img.filepath)
@@ -256,7 +267,6 @@ class BakeTextureOperator(bpy.types.Operator):
 
         # bpy.context.object.active_material = bpy.data.materials.get(mat.name)
 
-
         """
         activeObject = bpy.context.active_object #Set active object to variable
         mat = bpy.data.materials.new(name="MaterialName") #set new material to variable
@@ -269,7 +279,6 @@ class BakeTextureOperator(bpy.types.Operator):
     def removeMaterials(self, model):
         # nodes = mat.node_tree.nodes
         for mat in model.data.materials:
-            print("AAAAAAAAAAAAAA")
             print(mat)
 
         for mat in model.data.materials:

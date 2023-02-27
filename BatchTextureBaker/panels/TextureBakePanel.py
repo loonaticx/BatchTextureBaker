@@ -25,7 +25,7 @@ class TextureBakePanel(bpy.types.Panel):
         obj = context.object
 
         row = layout.row()
-        row.label(text = "Hi!!!", icon = 'WORLD_DATA')
+        row.label(text = "Batch Texture Bake", icon = 'WORLD_DATA')
 
         row = layout.row()
         row.label(text = "Active object is: " + obj.name)
@@ -42,6 +42,17 @@ class TextureBakePanel(bpy.types.Panel):
 
         row = layout.row()
         row.operator("object.texbake")
+
+        box = layout.box()
+        box.label(text="Margin Config")
+        row = box.row()
+        row.prop(context.scene.texbake_config, "margin_px")
+        # row = box.row()
+        # row.prop(context.scene.texbake_config, "want_bake_suffix")
+        # row = box.row()
+        # row.prop(context.scene.texbake_config, "margin_type")
+
+
 
 
 def register():
