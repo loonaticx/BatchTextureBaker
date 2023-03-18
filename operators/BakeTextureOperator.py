@@ -19,6 +19,9 @@ Notes
 - Currently the output texture copies the same dimensions as the input texture, however, this may
 cause some ugly quality loss compared to baking a 1024x1024 render and *then* exporting the image.
 
+- todo: ensure that it doesnt try to read any folders in INPUT_DIR
+- and ensure the fer uvs feature actually works
+
 
 """
 
@@ -47,6 +50,11 @@ class BakeTextureOperator(bpy.types.Operator):
         # self.MARGIN_TYPE = context.scene.texbake_config.margin_type
         self.OUTPUT_SUFFIX = "_bake" if context.scene.texbake_config.want_bake_suffix else "_bake"
 
+        # Should we transfer the texture data from UV A to UV B?
+        # This is enabled by default, but we are making this optional just in case
+        # that we just want to generate texture bleed instead
+        self.WANT_XFER_UVS = context.scene.texbake_config.want_xfer_uvs
+
         # append two backslashes if those arent on end of the input
         if self.INPUT_TEXTURE_DIR[-1] != "\\":
             self.INPUT_TEXTURE_DIR += "\\"
@@ -67,7 +75,10 @@ class BakeTextureOperator(bpy.types.Operator):
         # we will assume our selected object list is correct and intended for now!
         # SOURCE -> DESTINATION !!
         self.oldModel = bpy.context.selected_objects[0]  # type: active_object
-        self.newModel = bpy.context.selected_objects[1]  # type: active_object
+        if self.WANT_XFER_UVS:
+            self.newModel = bpy.context.selected_objects[1]  # type: active_object
+        else:
+            self.newModel = None
 
         # Configure our bake properties #
         # https://docs.blender.org/api/current/bpy.types.RenderSettings.html
@@ -117,7 +128,8 @@ class BakeTextureOperator(bpy.types.Operator):
                 name = f"{img.name}{self.OUTPUT_SUFFIX}", width = img.size[0], height = img.size[1]
             )
 
-            new_model_material = self.configureMaterial(imgNew, self.newModel)
+            if self.newModel:
+                new_model_material = self.configureMaterial(imgNew, self.newModel)
 
             # Reload images to ensure we dont bake the same texture twice
             bpy.data.images[img.name].update()
@@ -126,13 +138,14 @@ class BakeTextureOperator(bpy.types.Operator):
             bpy.data.images[imgNew.name].reload()
 
             self.oldModel.active_material = old_model_material
-            self.newModel.active_material = new_model_material
+            if self.newModel:
+                self.newModel.active_material = new_model_material
 
             ## Finished configuring materials, beginning baking process ##
 
             # Like pressing the 'Bake' button in Blender
             # this will remain locked until the bake is complete.
-            bpy.ops.object.bake(type = 'DIFFUSE', use_selected_to_active = True, use_clear = True)
+            bpy.ops.object.bake(type = 'DIFFUSE', use_selected_to_active = self.WANT_XFER_UVS, use_clear = True)
 
             ## Finished baking, now we will save and remove temp files ##
 
@@ -151,7 +164,8 @@ class BakeTextureOperator(bpy.types.Operator):
             bpy.data.images.remove(img)
             bpy.data.images.remove(imgNew)
             self.removeMaterials(self.oldModel)
-            self.removeMaterials(self.newModel)
+            if self.newModel:
+                self.removeMaterials(self.newModel)
 
     def configureMaterial(self, img, model):
         mat = model.data.materials.get(img.name)

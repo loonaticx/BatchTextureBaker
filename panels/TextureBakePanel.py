@@ -48,10 +48,14 @@ class TextureBakePanel(bpy.types.Panel):
         row = layout.row()
         row.operator("object.texbake")
 
+        row = layout.row()
+        row.prop(context.scene.texbake_config, "want_xfer_uvs")
+
         box = layout.box()
         box.label(text = "Margin Config")
         row = box.row()
         row.prop(context.scene.texbake_config, "margin_px")
+
         # row = box.row()
         # row.prop(context.scene.texbake_config, "want_bake_suffix")
         # row = box.row()

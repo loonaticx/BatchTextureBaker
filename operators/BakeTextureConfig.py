@@ -17,6 +17,7 @@ OUTPUT_TEXTURE_DIR = ""
 MARGIN_PX = 16
 MARGIN_TYPE = "ADJACENT_FACES"
 WANT_BAKE_SUFFIX = True
+WANT_XFER_UVS = True
 
 
 class BakeTextureConfig(bpy.types.PropertyGroup):
@@ -56,4 +57,10 @@ class BakeTextureConfig(bpy.types.PropertyGroup):
         name = "Include _bake suffix?",
         description = "Determine whether or not to add _bake at the end of the save image.",
         default = WANT_BAKE_SUFFIX
+    )
+
+    want_xfer_uvs: bpy.props.BoolProperty(
+        name = "Transfer texture to dest UVS?",
+        description = "Should we transfer the texture data from UV A to UV B?",
+        default = WANT_XFER_UVS
     )
